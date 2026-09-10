@@ -1,0 +1,123 @@
+/*
+ Theme Name:   Bookory Child
+ Template:     bookory
+ Version:      1.0
+*/
+
+/* Import parent theme styles */
+@import url("../bookory/style.css");
+
+/* ===== Blog 3×3 Grid ===== */
+/* Blog grid wrapper */
+.blog-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr); /* 3 per row */
+  gap: 2rem; /* spacing between cards */
+}
+
+/* Responsive breakpoints */
+@media (max-width: 992px) {
+  .blog-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 per row on tablets */
+  }
+}
+
+@media (max-width: 576px) {
+  .blog-grid {
+    grid-template-columns: 1fr; /* 1 per row on mobile */
+  }
+}
+
+
+/* Equal-height cards */
+.blog-grid article.blog-card {
+  height: 100%;
+}
+.blog-grid .blog-card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.blog-grid .entry-summary {
+  margin-top: auto;
+}
+
+/* Thumbnails - consistent aspect ratio */
+.blog-card .post-thumbnail {
+  width: 100%;
+  aspect-ratio: 3 / 2;   /* force consistent ratio */
+  overflow: hidden;
+  border-radius: 4px;
+}
+.blog-card .post-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     /* keeps aspect ratio, crops neatly */
+  display: block;
+}
+
+/* Label & Title Styling */
+.content-type-label {
+  display: inline-block;
+  background: #044d53;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+.blog-grid .entry-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+
+/* Sidebar subject filters */
+.subject-filters {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.subject-filters li {
+  margin-bottom: 0.5rem;
+}
+
+.subject-filters a {
+  display: block;
+  padding: 6px 10px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.subject-filters a:hover,
+.subject-filters a.active {
+  background: #f5f5f5;
+  color: #000;
+}
+
+
+/* Search Form */
+
+.search-form {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 60px;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+.search-form.active {
+  display: block;
+}
+.search-menu-item a {
+  cursor: pointer;
+}
+
