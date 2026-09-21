@@ -29,7 +29,30 @@ get_header();
                     <div class="post-main-content">
                         <div class="entry-content">
                             <?php
-                            the_content();
+                            $post_content = apply_filters("the_content", get_the_content());
+
+                            // Hide broken inline images and clean up their empty HTML wrappers.
+                            $post_content = preg_replace_callback(
+                                '/<img\b[^>]*>/i',
+                                static function ($matches) {
+                                    $image_tag = $matches[0];
+
+                                    if (stripos($image_tag, 'onerror=') !== false) {
+                                        return $image_tag;
+                                    }
+
+                                    $onerror = 'this.onerror=null;var image=this;var figure=image.closest("figure");if(figure){figure.remove();return false;}var parent=image.parentElement;image.remove();while(parent&&parent.classList&&!parent.classList.contains("entry-content")){var tag=parent.tagName;var hasContent=parent.textContent.trim()||parent.querySelector("img,video,iframe,table,ul,ol,figure");if(["A","P","DIV"].indexOf(tag)!==-1&&!hasContent){var next=parent.parentElement;parent.remove();parent=next;}else{break;}}return false;';
+
+                                    return preg_replace(
+                                        '/\s*(\/?)>$/',
+                                        ' onerror="' . esc_attr($onerror) . '"$1>',
+                                        $image_tag
+                                    );
+                                },
+                                $post_content
+                            );
+
+                            echo $post_content;
                             
                             wp_link_pages(array(
                                 'before' => '<div class="page-links">' . esc_html__('Pages:', 'twentytwentyfive-child'),
@@ -161,13 +184,15 @@ $next_post = get_next_post();
             <div class="latest-post-card">
                 <a href="<?php the_permalink(); ?>" class="latest-post-image">
                     <?php if (has_post_thumbnail()) : ?>
-                        <?php the_post_thumbnail('medium'); ?>
+                        <?php
+                        the_post_thumbnail('medium', array(
+                            'onerror' => 'this.onerror=null;this.src=\'' . esc_url(twentytwentyfive_child_default_image_url()) . '\'',
+                        ));
+                        ?>
                     <?php else : ?>
-                        <div class="default-post-image">
-                            <h3 class="default-post-title">
-                                <?php the_title(); ?>
-                            </h3>
-                        </div>
+                        <img src="<?php echo esc_url(twentytwentyfive_child_default_image_url()); ?>"
+                             alt="<?php echo esc_attr(get_the_title()); ?>"
+                             loading="lazy">
                     <?php endif; ?>
                 </a>
                 <div class="latest-post-content">

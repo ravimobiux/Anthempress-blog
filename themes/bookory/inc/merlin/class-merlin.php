@@ -199,6 +199,20 @@ class Merlin {
     protected $dev_mode = false;
 
     /**
+     * URL used by the ready step's large button.
+     *
+     * @var string
+     */
+    protected $ready_big_button_url = null;
+
+    /**
+     * Sanitized parent theme slug used by Merlin's option keys.
+     *
+     * @var string
+     */
+    protected $slug = null;
+
+    /**
      * Ignore.
      *
      * @var string $ignore

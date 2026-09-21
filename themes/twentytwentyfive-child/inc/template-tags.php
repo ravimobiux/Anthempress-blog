@@ -43,70 +43,80 @@ if (!function_exists('twentytwentyfive_child_post_sidebar')) :
      * Displays the post sidebar with cover image
      */
     function twentytwentyfive_child_post_sidebar() {
-        $default_image = 'https://blog.anthempress.com/wp-content/uploads/2025/08/Default-Anthem-Press.jpeg';
+        $default_image = twentytwentyfive_child_default_image_url();
         ?>
         <aside class="post-sidebar">
             
 	<?php 
-// Get default image path
-$default_image = 'https://blog.anthempress.com/wp-content/uploads/2025/08/Default-Anthem-Press.jpeg';
+// Select a cover image, then fall back to the featured image and default image.
+$default_image = twentytwentyfive_child_default_image_url();
+$cover_image = function_exists("get_field") ? get_field("cover_image") : null;
+$image_url = "";
+$image_srcset = "";
+$image_alt = get_the_title();
+$image_width = 800;
+$image_height = 600;
+$fallback_image = $default_image;
 
-// Display cover image from ACF field if available
-$cover_image = get_field('cover_image');
-if ($cover_image) : 
-    // Get image data based on return format (array or ID)
-    $image_data = is_array($cover_image) ? $cover_image : wp_get_attachment_metadata($cover_image);
-    
-    // Get optimal image size
-    $image_url = is_array($cover_image) ? $cover_image['url'] : wp_get_attachment_image_url($cover_image, 'large');
-    $image_alt = is_array($cover_image) ? ($cover_image['alt'] ?: get_the_title()) : 
-                 (get_post_meta($cover_image, '_wp_attachment_image_alt', true) ?: get_the_title());
-    
-    if ($image_url) : ?>
-        <div class="post-featured-image">
-            <img src="<?php echo esc_url($image_url); ?>" 
-                 srcset="<?php echo esc_attr(wp_get_attachment_image_srcset($cover_image, 'large')); ?>"
-                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-                 alt="<?php echo esc_attr($image_alt); ?>" 
-                 class="featured-image" 
-                 loading="lazy"
-                 width="<?php echo esc_attr($image_data['width'] ?? 800); ?>"
-                 height="<?php echo esc_attr($image_data['height'] ?? 600); ?>">
-        </div>
-    <?php endif;
+// ACF image fields may return an array, attachment ID, or URL.
+if (is_array($cover_image)) {
+    $image_url = !empty($cover_image["url"]) ? $cover_image["url"] : "";
+    $image_alt = !empty($cover_image["alt"]) ? $cover_image["alt"] : $image_alt;
+    $image_width = !empty($cover_image["width"]) ? $cover_image["width"] : $image_width;
+    $image_height = !empty($cover_image["height"]) ? $cover_image["height"] : $image_height;
 
-// Fallback to featured image
-elseif (has_post_thumbnail()) : 
+    if (!empty($cover_image["ID"])) {
+        $image_srcset = wp_get_attachment_image_srcset((int) $cover_image["ID"], "large") ?: "";
+    }
+} elseif (is_numeric($cover_image)) {
+    $cover_id = (int) $cover_image;
+    $image_url = wp_get_attachment_image_url($cover_id, "large") ?: "";
+    $image_srcset = wp_get_attachment_image_srcset($cover_id, "large") ?: "";
+    $image_metadata = wp_get_attachment_metadata($cover_id);
+    $image_alt = get_post_meta($cover_id, "_wp_attachment_image_alt", true) ?: $image_alt;
+    $image_width = $image_metadata["width"] ?? $image_width;
+    $image_height = $image_metadata["height"] ?? $image_height;
+} elseif (is_string($cover_image) && filter_var($cover_image, FILTER_VALIDATE_URL)) {
+    $image_url = $cover_image;
+}
+
+// If there is no usable cover-image value, use the WordPress featured image.
+if (has_post_thumbnail()) {
     $thumbnail_id = get_post_thumbnail_id();
-    $image_alt = get_post_meta($thumbnail_id, '_wp_attachment_image_alt', true) ?: get_the_title();
-    ?>
-    <div class="post-featured-image">
-        <?php echo wp_get_attachment_image(
-            $thumbnail_id,
-            'large',
-            false,
-            array(
-                'class' => 'featured-image',
-                'alt' => esc_attr($image_alt),
-                'loading' => 'lazy',
-                'srcset' => wp_get_attachment_image_srcset($thumbnail_id, 'large'),
-                'sizes' => '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px'
-            )
-        ); ?>
-    </div>
+    $featured_image = wp_get_attachment_image_url($thumbnail_id, "large");
 
-<!-- Final fallback to default image -->
-<?php else : ?>
-    <div class="post-featured-image">
-        <img src="<?php echo esc_url($default_image); ?>" 
-             alt="<?php esc_attr_e('Default post image', 'twentytwentyfive-child'); ?>" 
-             class="featured-image" 
-             loading="lazy"
-             width="800"
-             height="600">
-    </div>
-<?php endif; ?>
-            
+    if ($image_url) {
+        // A broken remote cover image can fall back to the featured image in the browser.
+        $fallback_image = $featured_image ?: $default_image;
+    } elseif ($featured_image) {
+        $image_url = $featured_image;
+        $image_srcset = wp_get_attachment_image_srcset($thumbnail_id, "large") ?: "";
+        $image_alt = get_post_meta($thumbnail_id, "_wp_attachment_image_alt", true) ?: $image_alt;
+        $image_metadata = wp_get_attachment_metadata($thumbnail_id);
+        $image_width = $image_metadata["width"] ?? $image_width;
+        $image_height = $image_metadata["height"] ?? $image_height;
+    }
+}
+
+if (!$image_url) {
+    $image_url = $default_image;
+    $image_alt = __("Default post image", "twentytwentyfive-child");
+}
+
+$image_error_handler = "this.onerror=null;this.removeAttribute(\"srcset\");this.removeAttribute(\"sizes\");this.src=" . chr(34) . esc_url($fallback_image) . chr(34) . ";";
+?>
+        <div class="post-featured-image">
+            <img src="<?php echo esc_url($image_url); ?>"
+                 <?php if ($image_srcset) : ?>srcset="<?php echo esc_attr($image_srcset); ?>"<?php endif; ?>
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                 alt="<?php echo esc_attr($image_alt); ?>"
+                 class="featured-image"
+                 loading="lazy"
+                 onerror="<?php echo esc_attr($image_error_handler); ?>"
+                 width="<?php echo esc_attr($image_width); ?>"
+                 height="<?php echo esc_attr($image_height); ?>">
+        </div>
+
         </aside>
         <?php
     }

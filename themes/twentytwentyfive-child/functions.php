@@ -29,6 +29,44 @@ function twentytwentyfive_child_setup() {
 add_action('after_setup_theme', 'twentytwentyfive_child_setup');
 
 /**
+ * Return the uploaded default cover image used when a post has no usable image.
+ *
+ * The migration script stores the SHA-256 as attachment metadata, so this
+ * continues to work if WordPress changes the upload year/month URL later.
+ */
+if (!function_exists('twentytwentyfive_child_default_image_url')) {
+    function twentytwentyfive_child_default_image_url() {
+        static $default_image_url = null;
+
+        if (null !== $default_image_url) {
+            return $default_image_url;
+        }
+
+        $default_hash = '86fc7e78bd4b112a58d70e152c0f2dfb6734c2ca7749cb7b2bff29f0df604f5e';
+        $attachments = get_posts(array(
+            'post_type'        => 'attachment',
+            'post_status'      => 'inherit',
+            'posts_per_page'   => 1,
+            'fields'           => 'ids',
+            'meta_key'         => '_anthempress_migration_sha256',
+            'meta_value'       => $default_hash,
+            'suppress_filters' => true,
+        ));
+
+        if (!empty($attachments)) {
+            $default_image_url = wp_get_attachment_image_url((int) $attachments[0], 'full');
+        }
+
+        if (!$default_image_url) {
+            $uploads = wp_upload_dir();
+            $default_image_url = trailingslashit($uploads['baseurl']) . '2026/09/Anthempress_cover_Image.png';
+        }
+
+        return $default_image_url;
+    }
+}
+
+/**
  * Enqueue scripts and styles
  */
 
@@ -329,5 +367,4 @@ add_action('template_redirect', function () {
     }
 
 });
-
 

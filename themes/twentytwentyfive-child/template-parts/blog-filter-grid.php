@@ -102,7 +102,7 @@ if ($is_filtered_request && !$blog_query->have_posts()) {
     }
 }
 
-$default_image = 'https://blog.anthempress.com/wp-content/uploads/2025/08/Anthempress.png';
+$default_image = twentytwentyfive_child_default_image_url();
 
 // Base URL
 $base_url = get_post_type_archive_link('post');

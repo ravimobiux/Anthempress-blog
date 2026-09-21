@@ -1,34 +1,39 @@
-<div class="column-item post-style-2">
-    <div class="post-inner d-flex flex-column">
+<?php
+/**
+ * Bookory style-2 post card override.
+ *
+ * @package Bookory_Child
+ */
 
-        <!-- 1. Content Type Label -->
-        <?php
-        $content_type = get_the_terms(get_the_ID(), 'content_type');
-        if ($content_type && !is_wp_error($content_type)) {
-            echo '<span class="post-label badge bg-primary mb-2">' . esc_html($content_type[0]->name) . '</span>';
-        } else {
-            $categories = get_the_category();
-            if (!empty($categories)) {
-                echo '<span class="post-label badge bg-secondary mb-2">' . esc_html($categories[0]->name) . '</span>';
-            }
-        }
-        ?>
+$image_url = bookory_child_default_featured_image_url();
+$label     = bookory_child_post_content_type_label();
+?>
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'column-item post-card post-style-2' ); ?>>
+    <div class="post-content">
+        <?php if ( $label ) : ?>
+            <div class="content-type-header">
+                <span class="content-type-label"><?php echo esc_html( $label ); ?></span>
+            </div>
+        <?php endif; ?>
 
-        <!-- 2. Title -->
-        <?php the_title(
-            '<h3 class="entry-title mb-3"><a href="' . esc_url(get_permalink()) . '" rel="bookmark">', 
-            '</a></h3>'
-        ); ?>
+        <h2>
+            <a href="<?php the_permalink(); ?>" rel="bookmark"><?php the_title(); ?></a>
+        </h2>
 
-        <!-- 3. Featured Image -->
-        <div class="post-thumbnail mb-3 order-3">
-            <?php bookory_post_thumbnail('bookory-post-grid', false); ?>
+        <div class="post-media">
+            <a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( get_the_title() ); ?>">
+                <?php if ( has_post_thumbnail() ) : ?>
+                    <?php the_post_thumbnail( 'bookory-post-grid', array( 'class' => 'post-image' ) ); ?>
+                <?php elseif ( $image_url ) : ?>
+                    <img src="<?php echo esc_url( $image_url ); ?>" class="post-image" alt="<?php echo esc_attr( get_the_title() ); ?>">
+                <?php else : ?>
+                    <div class="default-post-image"><span><?php the_title(); ?></span></div>
+                <?php endif; ?>
+            </a>
         </div>
 
-        <!-- 4. Excerpt -->
-        <div class="entry-content order-4">
-            <p><?php echo wp_trim_words(get_the_excerpt(), 25); ?></p>
+        <div class="post-excerpt">
+            <?php echo wp_kses_post( wp_trim_words( get_the_excerpt(), 30, '...' ) ); ?>
         </div>
-
     </div>
-</div>
+</article>

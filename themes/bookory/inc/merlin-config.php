@@ -526,4 +526,6 @@ class Bookory_Merlin_Config {
     } // end get_all_options
 }
 
-return new Bookory_Merlin_Config();
+add_action( 'init', function () {
+    new Bookory_Merlin_Config();
+}, 0 );
