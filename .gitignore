@@ -1,0 +1,46 @@
+# WordPress uploads
+/uploads/
+
+# Plugins
+/plugins/
+
+# Cache
+/cache/
+/litespeed/
+/w3tc-config/
+/advanced-cache.php
+
+# WordPress upgrade/temp
+/upgrade/
+/upgrade-temp-backup/
+
+# Ignore all themes
+/themes/*
+
+# Track selected themes
+!/themes/bookory/
+!/themes/bookory-child/
+!/themes/twentytwentyfive/
+!/themes/twentytwentyfive-child/
+
+
+# Logs
+*.log
+debug.log
+
+# Environment/secrets
+.env
+.env.*
+
+# Backups
+*.sql
+*.sql.gz
+*.zip
+*.tar
+*.tar.gz
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
