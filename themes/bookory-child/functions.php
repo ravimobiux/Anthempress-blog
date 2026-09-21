@@ -48,6 +48,39 @@ function bookory_child_setup() {
 add_action( 'after_setup_theme', 'bookory_child_setup', 11 );
 
 /**
+ * Remove the legacy image-credit paragraph left in some imported posts.
+ *
+ * Only a paragraph whose complete normalized text is this exact credit is
+ * removed; other captions and post content remain unchanged.
+ */
+function bookory_child_remove_legacy_image_credit( $content ) {
+    if ( false === stripos( $content, 'Sampson Construction' ) ) {
+        return $content;
+    }
+
+    return preg_replace_callback(
+        '/<p\b[^>]*>.*?<\/p>/is',
+        static function ( $matches ) {
+            $text = html_entity_decode(
+                wp_strip_all_tags( $matches[0] ),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+            $text = str_replace( "\xC2\xA0", ' ', $text );
+            $text = preg_replace( '/\s+/u', ' ', trim( $text ) );
+
+            if ( preg_match( '/^\x{00A9}\s*2012\s+Sampson\s+Construction$/iu', $text ) ) {
+                return '';
+            }
+
+            return $matches[0];
+        },
+        $content
+    );
+}
+add_filter( 'the_content', 'bookory_child_remove_legacy_image_credit', 20 );
+
+/**
  * The child header/footer replace Bookory's default chrome on blog pages.
  */
 function bookory_child_disable_parent_chrome() {

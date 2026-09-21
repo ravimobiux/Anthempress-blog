@@ -29,6 +29,39 @@ function twentytwentyfive_child_setup() {
 add_action('after_setup_theme', 'twentytwentyfive_child_setup');
 
 /**
+ * Remove the legacy image-credit paragraph left in some imported posts.
+ *
+ * Only a paragraph whose complete normalized text is this exact credit is
+ * removed; other captions and post content remain unchanged.
+ */
+function twentytwentyfive_child_remove_legacy_image_credit($content) {
+    if (stripos($content, 'Sampson Construction') === false) {
+        return $content;
+    }
+
+    return preg_replace_callback(
+        '/<p\b[^>]*>.*?<\/p>/is',
+        static function ($matches) {
+            $text = html_entity_decode(
+                wp_strip_all_tags($matches[0]),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+            $text = str_replace("\xC2\xA0", ' ', $text);
+            $text = preg_replace('/\s+/u', ' ', trim($text));
+
+            if (preg_match('/^\x{00A9}\s*2012\s+Sampson\s+Construction$/iu', $text)) {
+                return '';
+            }
+
+            return $matches[0];
+        },
+        $content
+    );
+}
+add_filter('the_content', 'twentytwentyfive_child_remove_legacy_image_credit', 20);
+
+/**
  * Return the uploaded default cover image used when a post has no usable image.
  *
  * The migration script stores the SHA-256 as attachment metadata, so this
@@ -367,4 +400,3 @@ add_action('template_redirect', function () {
     }
 
 });
-
