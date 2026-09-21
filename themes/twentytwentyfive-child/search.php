@@ -194,9 +194,11 @@ $query = new WP_Query($args);
                                 <?php if (has_post_thumbnail()) : ?>
                                     <?php the_post_thumbnail('medium'); ?>
                                 <?php else : ?>
-                                    <div class="search-default-thumbnail">
-                                        <h3><?php the_title(); ?></h3>
-                                    </div>
+                                    <img
+                                        src="<?php echo esc_url(twentytwentyfive_child_default_image_url()); ?>"
+                                        class="search-default-thumbnail"
+                                        alt="<?php echo esc_attr(get_the_title()); ?>"
+                                        loading="lazy">
                                 <?php endif; ?>
                             </a>
                             

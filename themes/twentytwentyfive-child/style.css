@@ -2393,6 +2393,17 @@ body.archive .right-sidebar {
     padding: 0.5rem;
 }
 
+/* Use the default cover as an image in cards without a featured image. */
+.archive-default-thumbnail,
+.search-default-thumbnail,
+.default-post-image {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+    object-fit: cover;
+}
+
 .archive-post-content {
     flex: 0 0 60%;
     padding: 1.5rem;
