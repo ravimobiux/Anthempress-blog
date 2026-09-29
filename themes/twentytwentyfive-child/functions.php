@@ -85,7 +85,19 @@ function twentytwentyfive_child_render_default_featured_image($block_content, $b
         return $block_content;
     }
 
-    $post_id = get_the_ID();
+    // Block templates and query loops can provide the post ID in block
+    // context even when get_the_ID() is not populated yet.
+    $block_context = isset($block['context']) && is_array($block['context'])
+        ? $block['context']
+        : array();
+    $post_id = !empty($block_context['postId'])
+        ? absint($block_context['postId'])
+        : absint(get_the_ID());
+
+    if (!$post_id) {
+        global $post;
+        $post_id = ($post instanceof WP_Post) ? (int) $post->ID : 0;
+    }
 
     if (
         !$post_id ||
