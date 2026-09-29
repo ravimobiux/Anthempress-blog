@@ -109,7 +109,22 @@ if (!function_exists('twentytwentyfive_child_is_legacy_inline_image_url')) {
 
         $host = strtolower((string) parse_url($image_url, PHP_URL_HOST));
 
-        return in_array($host, array('anthempressblog.com', 'www.anthempressblog.com'), true);
+        if (in_array($host, array('anthempressblog.com', 'www.anthempressblog.com'), true)) {
+            return true;
+        }
+
+        if (preg_match('/(?:^|\.)googleusercontent\.com$/i', $host)) {
+            return true;
+        }
+
+        if (
+            ($host === 'www.anthempress.com' && strpos(strtolower((string) parse_url($image_url, PHP_URL_PATH)), '/media/catalog/product/') === 0) ||
+            in_array($host, array('205.134.252.10', 'www.anthemenviroexperts.com'), true)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
 
@@ -120,11 +135,14 @@ if (!function_exists('twentytwentyfive_child_is_legacy_inline_image_url')) {
  * remove the whole paragraph. Otherwise remove only the dead image markup.
  */
 function twentytwentyfive_child_remove_legacy_inline_images($content) {
-    if (!is_string($content) || stripos($content, 'anthempressblog.com') === false) {
+    if (
+        !is_string($content) ||
+        (stripos($content, 'anthempressblog.com') === false && stripos($content, 'googleusercontent.com') === false)
+    ) {
         return $content;
     }
 
-    $image_pattern = '<img\b[^>]*\bsrc\s*=\s*["\']\s*https?://(?:www\.)?anthempressblog\.com/[^"\']+["\'][^>]*>';
+    $image_pattern = '<img\b[^>]*\bsrc\s*=\s*["\']\s*https?://(?:(?:www\.)?anthempressblog\.com|(?:[a-z0-9-]+\.)?googleusercontent\.com|www\.anthempress\.com/media/catalog/product|205\.134\.252\.10|www\.anthemenviroexperts\.com)/[^"\']+["\'][^>]*>';
 
     return preg_replace_callback(
         '/<p\\b[^>]*>.*?<\\/p>/is',

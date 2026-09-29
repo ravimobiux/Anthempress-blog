@@ -423,12 +423,15 @@ $base_url = trailingslashit($base_url);
                                         $content = get_the_content();
                                         $first_image = '';
 
-                                        if (preg_match('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches)) {
+                                        if (preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches)) {
 
-                                            $first_image = $matches[1];
+                                            $first_image = '';
 
-                                            if (twentytwentyfive_child_is_legacy_inline_image_url($first_image)) {
-                                                $first_image = '';
+                                            foreach ($matches[1] as $candidate_image) {
+                                                if (!twentytwentyfive_child_is_legacy_inline_image_url($candidate_image)) {
+                                                    $first_image = $candidate_image;
+                                                    break;
+                                                }
                                             }
 
                                             if ($first_image) {
