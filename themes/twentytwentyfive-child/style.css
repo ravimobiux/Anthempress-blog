@@ -33,6 +33,18 @@ p {
 	color: #044D53 !important;
 
 }
+
+/* Hide failed inline images without affecting featured-image fallbacks. */
+.twentytwentyfive-child-broken-inline-image,
+.twentytwentyfive-child-hidden-inline-image {
+    display: none !important;
+}
+
+.twentytwentyfive-child-default-featured-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
 /* UPDATED STYLES */
 .blog-filters-system {
   max-width: 1125px;

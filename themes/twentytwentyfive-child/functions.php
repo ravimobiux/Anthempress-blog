@@ -62,13 +62,84 @@ function twentytwentyfive_child_remove_legacy_image_credit($content) {
 add_filter('the_content', 'twentytwentyfive_child_remove_legacy_image_credit', 20);
 
 /**
- * Return the default cover image used when a post has no usable image.
+ * Return the default cover image used when a post has no featured image.
  */
 if (!function_exists('twentytwentyfive_child_default_image_url')) {
     function twentytwentyfive_child_default_image_url() {
         return 'https://blog.anthempress.com/wp-content/uploads/2025/08/Default-Anthem-Press.jpeg';
     }
 }
+
+/**
+ * Render the child-theme default image when a blog post has no featured image.
+ *
+ * This filter is registered by the Twenty Twenty-Five child theme only. It
+ * does not replace an existing featured image and does not affect pages or
+ * other post types.
+ */
+function twentytwentyfive_child_render_default_featured_image($block_content, $block) {
+    if (
+        'twentytwentyfive-child' !== get_stylesheet() ||
+        is_admin()
+    ) {
+        return $block_content;
+    }
+
+    $post_id = get_the_ID();
+
+    if (
+        !$post_id ||
+        'post' !== get_post_type($post_id) ||
+        has_post_thumbnail($post_id)
+    ) {
+        return $block_content;
+    }
+
+    $attributes = isset($block['attrs']) && is_array($block['attrs']) ? $block['attrs'] : array();
+    $classes    = array(
+        'wp-block-post-featured-image',
+        'twentytwentyfive-child-default-featured-image',
+    );
+
+    if (!empty($attributes['align'])) {
+        $classes[] = 'align' . sanitize_html_class($attributes['align']);
+    }
+
+    if (!empty($attributes['className'])) {
+        $classes[] = $attributes['className'];
+    }
+
+    $image_style = '';
+
+    if (!empty($attributes['aspectRatio'])) {
+        $image_style = sprintf(
+            ' style="aspect-ratio:%s;object-fit:cover"',
+            esc_attr($attributes['aspectRatio'])
+        );
+    }
+
+    $image = sprintf(
+        '<img class="wp-post-image" src="%1$s" alt="%2$s" loading="lazy"%3$s />',
+        esc_url(twentytwentyfive_child_default_image_url()),
+        esc_attr__('Anthem Press', 'twentytwentyfive-child'),
+        $image_style
+    );
+
+    if (!empty($attributes['isLink'])) {
+        $image = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            esc_url(get_permalink($post_id)),
+            $image
+        );
+    }
+
+    return sprintf(
+        '<figure class="%1$s">%2$s</figure>',
+        esc_attr(implode(' ', $classes)),
+        $image
+    );
+}
+add_filter('render_block_core/post-featured-image', 'twentytwentyfive_child_render_default_featured_image', 10, 2);
 
 /**
  * Enqueue scripts and styles
@@ -96,6 +167,18 @@ function twentytwentyfive_child_enqueue_assets() {
         [],
         '6.4.0'
     );
+
+    $broken_image_script = get_stylesheet_directory() . '/assets/js/hide-broken-inline-images.js';
+
+    if (file_exists($broken_image_script)) {
+        wp_enqueue_script(
+            'twentytwentyfive-child-hide-broken-inline-images',
+            get_stylesheet_directory_uri() . '/assets/js/hide-broken-inline-images.js',
+            array(),
+            filemtime($broken_image_script),
+            true
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'twentytwentyfive_child_enqueue_assets');
 
@@ -274,9 +357,13 @@ function register_rest_images(){
 function get_rest_featured_image($object, $field_name, $request) {
     if ($object['featured_media']) {
         $img = wp_get_attachment_image_src($object['featured_media'], 'full');
-        return $img[0];
+
+        if (!empty($img[0])) {
+            return $img[0];
+        }
     }
-    return null;
+
+    return twentytwentyfive_child_default_image_url();
 }
 
 /**
