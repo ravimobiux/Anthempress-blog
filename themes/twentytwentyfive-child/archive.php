@@ -45,7 +45,7 @@ $archive_month_name = $archive_month ? date('F', mktime(0, 0, 0, $archive_month,
                                             <?php the_post_thumbnail('medium'); ?>
                                         <?php else : ?>
                                             <img
-                                                src="<?php echo esc_url(twentytwentyfive_child_default_image_url()); ?>"
+                                                src="<?php echo esc_url(twentytwentyfive_child_archive_default_image_url()); ?>"
                                                 class="archive-default-thumbnail"
                                                 alt="<?php echo esc_attr(get_the_title()); ?>"
                                                 loading="lazy">
@@ -194,7 +194,7 @@ $archive_month_name = $archive_month ? date('F', mktime(0, 0, 0, $archive_month,
                                 <?php the_post_thumbnail('medium'); ?>
                             <?php else : ?>
                                 <img
-                                    src="<?php echo esc_url(twentytwentyfive_child_default_image_url()); ?>"
+                                    src="<?php echo esc_url(twentytwentyfive_child_archive_default_image_url()); ?>"
                                     class="default-post-image"
                                     alt="<?php echo esc_attr(get_the_title()); ?>"
                                     loading="lazy">

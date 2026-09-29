@@ -71,6 +71,15 @@ if (!function_exists('twentytwentyfive_child_default_image_url')) {
 }
 
 /**
+ * Return the image used for archive and listing cards without a real image.
+ */
+if (!function_exists('twentytwentyfive_child_archive_default_image_url')) {
+    function twentytwentyfive_child_archive_default_image_url() {
+        return 'https://blog.anthempress.com/wp-content/uploads/2025/08/Anthempress.png';
+    }
+}
+
+/**
  * Identify the old generic cover image that was previously used as a
  * placeholder. Real featured images are not affected.
  */
@@ -83,7 +92,7 @@ if (!function_exists('twentytwentyfive_child_is_legacy_default_image_url')) {
         $path = (string) parse_url($image_url, PHP_URL_PATH);
 
         return (bool) preg_match(
-            '~/(?:anthempress[_-]?cover[_-]?image)(?:-\d+x\d+)?\.(?:png|jpe?g)$~i',
+            '~/(?:anthempress[_-]?cover[_-]?image|default[_-]?anthem[_-]?press|anthempress)(?:-\d+x\d+)?\.(?:png|jpe?g)$~i',
             $path
         );
     }
