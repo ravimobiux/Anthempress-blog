@@ -183,7 +183,7 @@ $next_post = get_next_post();
         while ($latest_query->have_posts()) : $latest_query->the_post(); ?>
             <div class="latest-post-card">
                 <a href="<?php the_permalink(); ?>" class="latest-post-image">
-                    <?php if (has_post_thumbnail()) : ?>
+                    <?php if (twentytwentyfive_child_has_usable_featured_image()) : ?>
                         <?php
                         the_post_thumbnail('medium', array(
                             'onerror' => 'this.onerror=null;this.src=\'' . esc_url(twentytwentyfive_child_default_image_url()) . '\'',

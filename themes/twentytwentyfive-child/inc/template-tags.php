@@ -80,8 +80,14 @@ if (is_array($cover_image)) {
     $image_url = $cover_image;
 }
 
+// Do not treat the old generic cover as a real cover image.
+if (twentytwentyfive_child_is_legacy_default_image_url($image_url)) {
+    $image_url = '';
+    $image_srcset = '';
+}
+
 // If there is no usable cover-image value, use the WordPress featured image.
-if (has_post_thumbnail()) {
+if (twentytwentyfive_child_has_usable_featured_image()) {
     $thumbnail_id = get_post_thumbnail_id();
     $featured_image = wp_get_attachment_image_url($thumbnail_id, "large");
 

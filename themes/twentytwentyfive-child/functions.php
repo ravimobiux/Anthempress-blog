@@ -71,6 +71,44 @@ if (!function_exists('twentytwentyfive_child_default_image_url')) {
 }
 
 /**
+ * Identify the old generic cover image that was previously used as a
+ * placeholder. Real featured images are not affected.
+ */
+if (!function_exists('twentytwentyfive_child_is_legacy_default_image_url')) {
+    function twentytwentyfive_child_is_legacy_default_image_url($image_url) {
+        if (!is_string($image_url) || $image_url === '') {
+            return false;
+        }
+
+        $path = (string) parse_url($image_url, PHP_URL_PATH);
+
+        return (bool) preg_match(
+            '~/(?:anthempress[_-]?cover[_-]?image)(?:-\d+x\d+)?\.(?:png|jpe?g)$~i',
+            $path
+        );
+    }
+}
+
+/**
+ * Return whether a post has a real, usable featured image.
+ */
+if (!function_exists('twentytwentyfive_child_has_usable_featured_image')) {
+    function twentytwentyfive_child_has_usable_featured_image($post_id = 0) {
+        $post_id = $post_id ? absint($post_id) : absint(get_the_ID());
+        $thumbnail_id = $post_id ? get_post_thumbnail_id($post_id) : 0;
+
+        if (!$thumbnail_id) {
+            return false;
+        }
+
+        $image_url = wp_get_attachment_image_url($thumbnail_id, 'full');
+
+        return !empty($image_url)
+            && !twentytwentyfive_child_is_legacy_default_image_url($image_url);
+    }
+}
+
+/**
  * Render the child-theme default image when a blog post has no featured image.
  *
  * This filter is registered by the Twenty Twenty-Five child theme only. It
@@ -102,7 +140,7 @@ function twentytwentyfive_child_render_default_featured_image($block_content, $b
     if (
         !$post_id ||
         'post' !== get_post_type($post_id) ||
-        has_post_thumbnail($post_id)
+        twentytwentyfive_child_has_usable_featured_image($post_id)
     ) {
         return $block_content;
     }

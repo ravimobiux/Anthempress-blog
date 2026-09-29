@@ -191,7 +191,7 @@ $query = new WP_Query($args);
                         <div class="search-result-inner">
                             <!-- Image -->
                             <a href="<?php the_permalink(); ?>" class="search-result-thumbnail">
-                                <?php if (has_post_thumbnail()) : ?>
+                                <?php if (twentytwentyfive_child_has_usable_featured_image()) : ?>
                                     <?php the_post_thumbnail('medium'); ?>
                                 <?php else : ?>
                                     <img

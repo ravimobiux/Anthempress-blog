@@ -411,7 +411,7 @@ $base_url = trailingslashit($base_url);
                                    title="<?php echo esc_attr(get_the_title()); ?>">
 
                                     <?php
-                                    if (has_post_thumbnail()) {
+                                    if (twentytwentyfive_child_has_usable_featured_image()) {
 
                                         the_post_thumbnail('medium', array(
                                             'class' => 'post-image',

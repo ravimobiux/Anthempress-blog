@@ -41,7 +41,7 @@ $archive_month_name = $archive_month ? date('F', mktime(0, 0, 0, $archive_month,
                             <article id="post-<?php the_ID(); ?>" <?php post_class('archive-post-card'); ?>>
                                 <div class="archive-post-inner">
                                     <a href="<?php the_permalink(); ?>" class="archive-post-thumbnail">
-                                        <?php if (has_post_thumbnail()) : ?>
+                                        <?php if (twentytwentyfive_child_has_usable_featured_image()) : ?>
                                             <?php the_post_thumbnail('medium'); ?>
                                         <?php else : ?>
                                             <img
@@ -190,7 +190,7 @@ $archive_month_name = $archive_month ? date('F', mktime(0, 0, 0, $archive_month,
                 <div class="latest-post-card">
                     <div class="latest-post-inner">
                         <a href="<?php the_permalink(); ?>" class="latest-post-image">
-                            <?php if (has_post_thumbnail()) : ?>
+                            <?php if (twentytwentyfive_child_has_usable_featured_image()) : ?>
                                 <?php the_post_thumbnail('medium'); ?>
                             <?php else : ?>
                                 <img
