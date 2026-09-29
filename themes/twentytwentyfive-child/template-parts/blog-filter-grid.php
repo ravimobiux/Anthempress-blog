@@ -427,7 +427,15 @@ $base_url = trailingslashit($base_url);
 
                                             $first_image = $matches[1];
 
-                                            echo '<img src="' . esc_url($first_image) . '" class="post-image" onerror="this.onerror=null; this.src=\'' . esc_url($default_image) . '\'">';
+                                            if (twentytwentyfive_child_is_legacy_inline_image_url($first_image)) {
+                                                $first_image = '';
+                                            }
+
+                                            if ($first_image) {
+                                                echo '<img src="' . esc_url($first_image) . '" class="post-image" onerror="this.onerror=null; this.src=\'' . esc_url($default_image) . '\'">';
+                                            } else {
+                                                echo '<img src="' . esc_url($default_image) . '" class="post-image default-post-image">';
+                                            }
 
                                         } else {
 

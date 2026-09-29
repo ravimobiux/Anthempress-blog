@@ -99,6 +99,65 @@ if (!function_exists('twentytwentyfive_child_is_legacy_default_image_url')) {
 }
 
 /**
+ * Identify inline images still pointing at the retired blog domain.
+ */
+if (!function_exists('twentytwentyfive_child_is_legacy_inline_image_url')) {
+    function twentytwentyfive_child_is_legacy_inline_image_url($image_url) {
+        if (!is_string($image_url) || $image_url === '') {
+            return false;
+        }
+
+        $host = strtolower((string) parse_url($image_url, PHP_URL_HOST));
+
+        return in_array($host, array('anthempressblog.com', 'www.anthempressblog.com'), true);
+    }
+}
+
+/**
+ * Remove known-dead inline image markup before a post is rendered.
+ *
+ * If a paragraph contains only the retired image and its copyright caption,
+ * remove the whole paragraph. Otherwise remove only the dead image markup.
+ */
+function twentytwentyfive_child_remove_legacy_inline_images($content) {
+    if (!is_string($content) || stripos($content, 'anthempressblog.com') === false) {
+        return $content;
+    }
+
+    $image_pattern = '<img\b[^>]*\bsrc\s*=\s*["\']\s*https?://(?:www\.)?anthempressblog\.com/[^"\']+["\'][^>]*>';
+
+    return preg_replace_callback(
+        '/<p\\b[^>]*>.*?<\\/p>/is',
+        static function ($matches) use ($image_pattern) {
+            $paragraph = $matches[0];
+
+            if (!preg_match('~' . $image_pattern . '~i', $paragraph)) {
+                return $paragraph;
+            }
+
+            $without_image = preg_replace(
+                '~<a\\b[^>]*>\\s*' . $image_pattern . '\\s*</a>~i',
+                '',
+                $paragraph
+            );
+            $without_image = preg_replace('~' . $image_pattern . '~i', '', $without_image);
+            $remaining_text = trim(preg_replace('/\\s+/u', ' ', wp_strip_all_tags($without_image)));
+
+            if (
+                $remaining_text === '' ||
+                preg_match('/^(?:©|\\(c\\)|copyright)\\s*\\d{4}\\b/i', $remaining_text)
+            ) {
+                return '';
+            }
+
+            return $without_image;
+        },
+        $content
+    );
+}
+add_filter('the_content', 'twentytwentyfive_child_remove_legacy_inline_images', 25);
+
+/**
  * Return whether a post has a real, usable featured image.
  */
 if (!function_exists('twentytwentyfive_child_has_usable_featured_image')) {
